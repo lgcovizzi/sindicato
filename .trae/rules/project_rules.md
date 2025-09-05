@@ -2,6 +2,15 @@
 
 ## Visão Geral
 Sistema completo de gestão sindical com arquitetura moderna, segura e escalável, desenvolvido para atender às necessidades de sindicatos e suas operações administrativas.
+
+### Princípios Arquiteturais
+- **Arquitetura Modular**: Cada módulo possui responsabilidades específicas e bem definidas
+- **Separação de Responsabilidades**: Cada arquivo/classe tem uma única responsabilidade
+- **Baixo Acoplamento**: Módulos independentes com interfaces bem definidas
+- **Alta Coesão**: Funcionalidades relacionadas agrupadas no mesmo módulo
+- **Reutilização**: Componentes e serviços reutilizáveis em diferentes contextos
+- **Testabilidade**: Estrutura que facilita testes unitários e de integração
+
 o arquivo de regras não deve ter implementação de códigos. 
 
 ## Arquitetura Técnica
@@ -12,12 +21,53 @@ o arquivo de regras não deve ter implementação de códigos.
 - **Cache**: Redis para otimização de performance
 - **Ambiente**: Desenvolvimento e produção isolados via Docker
 
+### Estratégia de Testes e Cobertura
+
+#### Cobertura de Código
+- **Meta de Cobertura**: Mínimo de 80% em todas as camadas
+- **Cobertura Crítica**: 95% para módulos de autenticação, votação e pagamentos
+- **Relatórios**: Geração automática de relatórios de cobertura
+- **CI/CD Integration**: Falha de build se cobertura estiver abaixo do mínimo
+- **Métricas**: Lines, Functions, Branches e Statements coverage
+- **Exclusões**: Arquivos de configuração, migrations e seeders
+
+#### Tipos de Teste
+- **Testes Unitários**: Testam funções e métodos isoladamente
+- **Testes de Integração**: Testam interação entre módulos
+- **Testes de API**: Validam endpoints e contratos de API
+- **Testes E2E**: Simulam fluxos completos do usuário
+- **Testes de Performance**: Validam tempo de resposta e throughput
+- **Testes de Segurança**: Verificam vulnerabilidades e autenticação
+- **Testes de Acessibilidade**: Garantem conformidade com WCAG
+- **Testes de Responsividade**: Validam layout em diferentes dispositivos
+
+#### Ferramentas de Teste
+- **Backend (Laravel)**: PHPUnit, Pest, Laravel Dusk
+- **Frontend (Vue.js)**: Jest, Vue Test Utils, Cypress
+- **Mobile (React Native)**: Jest, React Native Testing Library, Detox
+- **API Testing**: Postman, Insomnia, Newman
+- **Performance**: Artillery, K6, Lighthouse
+- **Security**: OWASP ZAP, SonarQube
+- **Coverage**: Istanbul, PHPUnit Coverage, LCOV
+
 ### Backend - Laravel Framework
-- **Framework**: Laravel (PHP)
+- **Framework**: Laravel (PHP) com arquitetura modular MVC
 - **API**: RESTful para comunicação com frontend
 - **ORM**: Eloquent ORM para mapeamento objeto-relacional
 - **WebSocket**: Socket.io integrado para comunicação em tempo real
 - **Broadcasting**: Laravel Broadcasting com Redis para eventos em tempo real
+
+#### Estrutura Modular Backend
+- **Controllers**: Responsáveis apenas pelo controle de fluxo e validação de entrada
+- **Services**: Lógica de negócio isolada e reutilizável
+- **Repositories**: Abstração da camada de dados
+- **Models**: Representação das entidades do banco de dados
+- **Middleware**: Interceptadores para autenticação, autorização e logs
+- **Providers**: Configuração e registro de serviços
+- **Events/Listeners**: Sistema de eventos desacoplado
+- **Jobs**: Processamento assíncrono de tarefas
+- **Resources**: Transformação de dados para API
+- **Requests**: Validação de dados de entrada
 - **Cache Layers**:
   - Cache de rotas
   - Cache de views
@@ -28,6 +78,16 @@ o arquivo de regras não deve ter implementação de códigos.
   - Cache de traduções (lang)
   - Cache de recursos públicos
 
+#### APIs para Temas e Notificações
+- **User Preferences API**: Endpoints para salvar/recuperar preferências de tema
+- **Notification Settings**: Configurações de notificações por usuário
+- **Theme Sync**: Sincronização de preferências entre dispositivos
+- **Toast Messages**: API para envio de mensagens toast via push notifications
+- **System Notifications**: Notificações do sistema (manutenção, atualizações)
+- **Preference Storage**: Armazenamento de configurações no banco de dados
+- **Default Settings**: Configurações padrão por tipo de usuário
+- **Bulk Notifications**: Sistema para envio em massa de notificações
+
 #### Sistema de Tempo Real (WebSocket)
 - **Socket.io Server**: Servidor Node.js integrado ao Laravel
 - **Laravel Broadcasting**: Sistema de eventos em tempo real
@@ -35,6 +95,8 @@ o arquivo de regras não deve ter implementação de códigos.
 - **Autenticação WebSocket**: JWT token validation para conexões
 - **Salas de Votação**: Namespaces específicos por votação
 - **Event Broadcasting**: Eventos automáticos do Laravel para Socket.io
+- **Theme Sync Events**: Eventos para sincronização de tema em tempo real
+- **Toast Broadcasting**: Envio de notificações toast via WebSocket
 - **Configuração Técnica**:
   - **Servidor Socket.io**: Porta 6001 (configurável)
   - **Redis Channel**: `laravel_database_voting_channel`
@@ -68,16 +130,197 @@ o arquivo de regras não deve ter implementação de códigos.
 - **Eager Loading**: Carregamento otimizado de relacionamentos
 - **Pagination**: Paginação automática de resultados
 
+#### Models para Temas e Notificações
+- **UserPreference**: Model para preferências do usuário (tema, notificações, densidade)
+- **SystemNotification**: Model para notificações do sistema
+- **NotificationTemplate**: Templates para diferentes tipos de notificação
+- **UserNotificationSetting**: Configurações específicas de notificação por usuário
+- **ThemeConfiguration**: Configurações globais de tema por organização
+- **ToastMessage**: Histórico de mensagens toast enviadas
+- **NotificationLog**: Log de notificações enviadas para auditoria
+- **DevicePreference**: Preferências específicas por dispositivo do usuário
+
+#### Testes Backend (Laravel)
+
+**Estrutura de Testes**:
+- **tests/Unit/**: Testes unitários para models, services e helpers
+- **tests/Feature/**: Testes de integração para controllers e APIs
+- **tests/Browser/**: Testes E2E com Laravel Dusk
+- **tests/Performance/**: Testes de carga e performance
+- **tests/Security/**: Testes de segurança e vulnerabilidades
+
+**Configuração PHPUnit**:
+- **phpunit.xml**: Configuração com cobertura e relatórios
+- **Database Testing**: Uso de SQLite em memória para testes
+- **Factories**: Factories para todos os models com dados realistas
+- **Seeders de Teste**: Dados específicos para cenários de teste
+- **Mocking**: Mocks para serviços externos e APIs
+- **Assertions Customizadas**: Assertions específicas do domínio
+
+**Testes por Módulo**:
+- **AuthTest**: Login, registro, biometria, JWT, refresh tokens
+- **UserTest**: CRUD de usuários, preferências, permissões
+- **VotingTest**: Criação, participação, resultados, WebSocket events
+- **ConvenioTest**: Listagem, filtros, QR codes, geolocalização
+- **NewsTest**: Publicação, categorias, cache, SEO
+- **NotificationTest**: Envio, templates, preferências, logs
+- **ThemeTest**: Configurações, sincronização, persistência
+- **ToastTest**: Mensagens, queue, broadcasting
+
+**Testes de API**:
+- **Authentication Endpoints**: /api/auth/login, /api/auth/register
+- **User Endpoints**: /api/users, /api/users/{id}, /api/users/preferences
+- **Voting Endpoints**: /api/votings, /api/votings/{id}/vote
+- **Convenio Endpoints**: /api/convenios, /api/convenios/{id}
+- **News Endpoints**: /api/news, /api/news/{id}, /api/news/categories
+- **Notification Endpoints**: /api/notifications, /api/notifications/settings
+- **WebSocket Events**: Testes de broadcasting e eventos em tempo real
+
+**Cobertura Específica**:
+- **Controllers**: 90% - Todos os endpoints e validações
+- **Services**: 95% - Lógica de negócio crítica
+- **Models**: 85% - Relacionamentos e scopes
+- **Middleware**: 100% - Autenticação e autorização
+- **Jobs**: 90% - Processamento assíncrono
+- **Events/Listeners**: 85% - Sistema de eventos
+- **Repositories**: 90% - Camada de dados
+- **Helpers**: 95% - Funções utilitárias
+
+**Testes de Performance**:
+- **Load Testing**: 1000 usuários simultâneos
+- **Stress Testing**: Limite de capacidade do sistema
+- **API Response Time**: < 200ms para endpoints críticos
+- **Database Queries**: Otimização e N+1 prevention
+- **Memory Usage**: Monitoramento de vazamentos
+- **Cache Performance**: Eficiência do Redis
+
+**Testes de Segurança**:
+- **SQL Injection**: Proteção contra ataques SQL
+- **XSS Protection**: Sanitização de inputs
+- **CSRF Protection**: Validação de tokens CSRF
+- **Rate Limiting**: Testes de limite de requisições
+- **Authentication**: Validação de JWT e sessões
+- **Authorization**: Controle de acesso por roles
+- **Data Encryption**: Criptografia de dados sensíveis
+- **OWASP Top 10**: Cobertura das principais vulnerabilidades
+
 ### Frontend - Vue.js Ecosystem
-- **Framework**: Vue.js 3
-- **Gerenciamento de Estado**: Vuex
-- **Roteamento**: Vue Router
+- **Framework**: Vue.js 3 com arquitetura modular por features
+- **Gerenciamento de Estado**: Vuex com módulos separados por domínio
+- **Roteamento**: Vue Router com lazy loading de componentes
 - **HTTP Client**: Axios para consumo de APIs
 - **WebSocket**: Socket.io-client para comunicação em tempo real
-- **UI Framework**: Element Plus
-- **Estilização**: Bootstrap
-- **Ícones**: Font Awesome
+- **UI Framework**: Element Plus com tema customizado
+- **Sistema de Temas**: Suporte a tema claro/escuro com CSS custom properties
+- **Toast System**: Componente de notificações integrado com Vuex
+- **Estilização**: Bootstrap com variáveis CSS customizadas para temas
+- **Ícones**: Font Awesome com suporte a temas
 - **Build Tool**: Vue CLI com plugins específicos
+- **Responsividade**: Breakpoints padronizados e componentes adaptativos
+
+#### Estrutura Modular Frontend
+- **Components**: Componentes reutilizáveis organizados por funcionalidade
+  - **Common**: Componentes genéricos (Button, Modal, Form) com suporte a temas
+  - **Feature**: Componentes específicos de cada módulo
+  - **Layout**: Componentes de estrutura (Header, Sidebar, Footer) adaptativos
+  - **Toast**: Sistema de notificações toast com tipos e posicionamento
+  - **ThemeProvider**: Componente provedor de tema global
+- **Views**: Páginas da aplicação organizadas por módulo com responsividade
+- **Store**: Módulos Vuex separados por domínio de negócio
+  - **theme**: Módulo para controle de tema (light/dark/system)
+  - **toast**: Módulo para gerenciamento de mensagens toast
+- **Services**: Camada de comunicação com APIs
+- **Utils**: Funções utilitárias e helpers
+  - **theme**: Utilitários para manipulação de temas
+  - **toast**: Helpers para criação e controle de toasts
+- **Composables**: Lógica reutilizável com Composition API
+  - **useTheme**: Composable para controle de tema
+  - **useToast**: Composable para sistema de notificações
+- **Plugins**: Configurações de bibliotecas externas
+- **Router**: Configuração de rotas modularizada
+- **Styles**: Sistema de estilos organizados
+  - **themes**: Definições de tema claro e escuro
+  - **tokens**: Design tokens (cores, tipografia, espaçamentos)
+  - **components**: Estilos de componentes com suporte a temas
+
+#### Testes Frontend (Vue.js)
+
+**Estrutura de Testes**:
+- **tests/unit/**: Testes unitários para componentes e composables
+- **tests/integration/**: Testes de integração entre componentes
+- **tests/e2e/**: Testes end-to-end com Cypress
+- **tests/visual/**: Testes de regressão visual
+- **tests/accessibility/**: Testes de acessibilidade
+- **tests/performance/**: Testes de performance frontend
+
+**Configuração Jest**:
+- **jest.config.js**: Configuração com cobertura e transformers
+- **Vue Test Utils**: Biblioteca oficial para testes Vue.js
+- **Mock Service Worker**: Mocking de APIs para testes
+- **Testing Library**: Utilities para testes centrados no usuário
+- **Snapshot Testing**: Testes de regressão de componentes
+- **Coverage Reports**: Relatórios detalhados de cobertura
+
+**Testes de Componentes**:
+- **Common Components**: Button, Modal, Form, Input, Card
+- **Layout Components**: Header, Sidebar, Footer, Navigation
+- **Feature Components**: VotingCard, ConvenioItem, NewsCard
+- **Theme Components**: ThemeProvider, ThemeToggle
+- **Toast Components**: ToastContainer, ToastMessage
+- **Form Components**: LoginForm, RegisterForm, VotingForm
+- **Chart Components**: VotingResults, StatisticsChart
+
+**Testes de Store (Vuex)**:
+- **Auth Module**: Actions, mutations, getters de autenticação
+- **User Module**: Estado do usuário e preferências
+- **Voting Module**: Estado de votações e resultados
+- **Theme Module**: Controle de tema e persistência
+- **Toast Module**: Gerenciamento de mensagens
+- **Convenio Module**: Estado de convênios e filtros
+- **News Module**: Estado de notícias e categorias
+
+**Testes de Composables**:
+- **useAuth**: Lógica de autenticação e biometria
+- **useTheme**: Controle de tema e preferências
+- **useToast**: Sistema de notificações
+- **useWebSocket**: Conexão e eventos em tempo real
+- **useApi**: Cliente HTTP e interceptors
+- **useLocalStorage**: Persistência local
+- **useValidation**: Validação de formulários
+
+**Testes E2E (Cypress)**:
+- **User Flows**: Login, navegação, logout
+- **Voting Flow**: Participação completa em votação
+- **Convenio Flow**: Busca, filtro, visualização
+- **News Flow**: Leitura, compartilhamento, favoritos
+- **Theme Flow**: Mudança de tema, persistência
+- **Responsive Flow**: Testes em diferentes viewports
+- **Accessibility Flow**: Navegação por teclado, screen readers
+
+**Testes de Performance**:
+- **Bundle Size**: Análise de tamanho dos chunks
+- **Load Time**: Tempo de carregamento inicial
+- **Runtime Performance**: FPS, memory usage
+- **Lighthouse Scores**: Performance, accessibility, SEO
+- **Core Web Vitals**: LCP, FID, CLS
+- **Tree Shaking**: Verificação de código morto
+
+**Testes de Acessibilidade**:
+- **WCAG Compliance**: Conformidade com diretrizes
+- **Screen Reader**: Compatibilidade com leitores de tela
+- **Keyboard Navigation**: Navegação completa por teclado
+- **Color Contrast**: Contraste adequado em ambos os temas
+- **Focus Management**: Gerenciamento de foco
+- **ARIA Labels**: Rótulos e descrições adequadas
+
+**Cobertura Específica**:
+- **Components**: 85% - Todos os props, events e slots
+- **Composables**: 90% - Lógica reutilizável crítica
+- **Store Modules**: 95% - Estado e mutações
+- **Services**: 90% - Comunicação com APIs
+- **Utils**: 95% - Funções utilitárias
+- **Router**: 80% - Navegação e guards
+- **Plugins**: 85% - Configurações e integrações
 
 #### Integração WebSocket (Vue.js)
 - **Socket.io Client**: Conexão com servidor Socket.io
@@ -95,11 +338,11 @@ o arquivo de regras não deve ter implementação de códigos.
 ### Aplicativo Mobile - React Native com Expo
 
 #### Arquitetura Mobile
-- **Framework**: React Native com Expo SDK
+- **Framework**: React Native com Expo SDK e arquitetura modular
 - **Linguagem**: TypeScript para tipagem estática e maior segurança
 - **Plataformas**: iOS e Android (build universal)
-- **Gerenciamento de Estado**: Redux Toolkit + RTK Query
-- **Navegação**: React Navigation 6
+- **Gerenciamento de Estado**: Redux Toolkit + RTK Query com slices modulares
+- **Navegação**: React Navigation 6 com navegação modularizada
 - **HTTP Client**: Axios com interceptors para autenticação
 - **UI Framework**: React Native Elements + NativeBase
 - **Ícones**: Expo Vector Icons
@@ -107,6 +350,56 @@ o arquivo de regras não deve ter implementação de códigos.
 - **Deployment**: Expo Application Services (EAS)
 - **Tipagem**: Interfaces TypeScript para todas as entidades e APIs
 - **Linting**: ESLint + TypeScript ESLint para qualidade de código
+
+#### Estrutura Modular Mobile
+- **src/modules/**: Organização por módulos de negócio
+  - **auth/**: Módulo de autenticação (components, screens, services, store)
+  - **identity/**: Módulo da carteirinha digital
+  - **convenios/**: Módulo de convênios
+  - **news/**: Módulo de notícias
+  - **voting/**: Módulo de votações
+- **src/shared/**: Recursos compartilhados
+  - **components/**: Componentes reutilizáveis
+  - **services/**: Serviços compartilhados
+  - **utils/**: Utilitários e helpers
+  - **types/**: Interfaces TypeScript globais
+  - **constants/**: Constantes da aplicação
+- **src/core/**: Funcionalidades centrais
+  - **navigation/**: Configuração de navegação
+  - **store/**: Configuração do Redux
+  - **api/**: Configuração base de APIs
+
+#### Sistema de Temas e UI/UX
+
+**Temas Responsivos**:
+- **Tema Claro**: Paleta de cores clara com alta legibilidade
+- **Tema Escuro**: Paleta de cores escura para reduzir fadiga visual
+- **Detecção Automática**: Seguir preferência do sistema operacional
+- **Persistência**: Salvar preferência do usuário no AsyncStorage
+- **Transições Suaves**: Animações entre mudanças de tema
+- **Cores Adaptáveis**: Sistema de cores que se adapta automaticamente
+- **Contraste Otimizado**: Garantir acessibilidade em ambos os temas
+- **Ícones Adaptativos**: Ícones que mudam conforme o tema
+
+**Sistema de Toast/Notificações**:
+- **Tipos de Mensagem**: Sucesso, erro, informação, aviso
+- **Posicionamento**: Top, bottom, center configurável
+- **Auto-dismiss**: Tempo configurável para fechamento automático
+- **Ações Customizáveis**: Botões de ação em toasts
+- **Fila de Mensagens**: Sistema de queue para múltiplas mensagens
+- **Animações**: Slide in/out, fade, bounce
+- **Persistência**: Toasts importantes que não fecham automaticamente
+- **Integração Redux**: Estado global para controle de toasts
+- **Acessibilidade**: Suporte a screen readers
+- **Responsividade**: Adaptação para diferentes tamanhos de tela
+
+**Design System**:
+- **Tokens de Design**: Cores, tipografia, espaçamentos padronizados
+- **Componentes Base**: Button, Input, Card, Modal com suporte a temas
+- **Breakpoints**: Sistema responsivo para diferentes dispositivos
+- **Densidade**: Opções de densidade de interface (compacta, normal, espaçosa)
+- **Tipografia Escalável**: Tamanhos de fonte que se adaptam ao dispositivo
+- **Espaçamentos Consistentes**: Sistema de grid e espaçamentos padronizados
 
 #### Funcionalidades Principais
 
@@ -171,34 +464,25 @@ o arquivo de regras não deve ter implementação de códigos.
 #### Arquitetura Técnica
 
 **Estrutura de Pastas**:
-```
-src/
-├── components/          # Componentes reutilizáveis
-│   ├── common/         # Componentes genéricos
-│   ├── forms/          # Componentes de formulário
-│   └── ui/             # Componentes de interface
-├── screens/            # Telas da aplicação
-│   ├── auth/          # Telas de autenticação
-│   ├── home/          # Tela inicial
-│   ├── profile/       # Perfil do usuário
-│   ├── convenios/     # Sistema de convênios
-│   ├── news/          # Sistema de notícias
-│   ├── voting/        # Sistema de votações
-│   └── identity/      # Carteirinha digital
-├── navigation/         # Configuração de navegação
-├── services/          # Serviços e APIs
-├── store/             # Redux store e slices
-├── utils/             # Utilitários e helpers
-├── hooks/             # Custom hooks
-└── constants/         # Constantes da aplicação
-```
+- **src/components/**: Componentes reutilizáveis organizados em subpastas (common, forms, ui)
+- **src/screens/**: Telas da aplicação (auth, home, profile, convenios, news, voting, identity)
+- **src/navigation/**: Configuração de navegação entre telas
+- **src/services/**: Serviços e APIs para comunicação com backend
+- **src/store/**: Redux store e slices para gerenciamento de estado
+- **src/utils/**: Utilitários e helpers para funções auxiliares
+- **src/hooks/**: Custom hooks para lógica reutilizável
+- **src/constants/**: Constantes da aplicação
+- **src/theme/**: Sistema de temas e tokens de design
+- **src/components/Toast/**: Componentes do sistema de toast
 
 **Gerenciamento de Estado**:
 - **Redux Toolkit**: Gerenciamento centralizado de estado da aplicação
 - **Interfaces TypeScript**: Tipagem para User, AuthState e outras entidades
 - **Auth Slice**: Controle de autenticação, login, logout e biometria
-- **Actions**: loginSuccess, logout, enableBiometric, setLoading, setError
-- **Estado Inicial**: Configuração padrão para usuário não autenticado
+- **Theme Slice**: Controle de tema (light/dark), preferências de UI
+- **Toast Slice**: Gerenciamento de mensagens toast (queue, tipos, configurações)
+- **Actions**: loginSuccess, logout, enableBiometric, setLoading, setError, toggleTheme, showToast, hideToast
+- **Estado Inicial**: Configuração padrão para usuário não autenticado, tema do sistema, toast queue vazia
 
 **API Integration**:
 - **Interfaces de API**: Tipagem para LoginCredentials, LoginResponse
@@ -217,6 +501,43 @@ src/
 - **Mutations**: Login, submissão de votos
 - **Queries**: Busca de convênios, notícias paginadas, votações, resultados
 
+**Interfaces TypeScript para Temas e Toast**:
+- **ThemeMode**: 'light' | 'dark' | 'system' para controle de tema
+- **ThemeState**: Estado do tema com mode, colors, typography, spacing
+- **ToastType**: 'success' | 'error' | 'info' | 'warning' para tipos de mensagem
+- **ToastPosition**: 'top' | 'bottom' | 'center' para posicionamento
+- **ToastConfig**: Configuração com duration, position, dismissible, action
+- **Toast**: Estrutura com id, type, title, message, config, timestamp
+- **ToastState**: Estado global com queue, activeToasts, defaultConfig
+- **ColorTokens**: Paleta de cores para light e dark theme
+- **TypographyTokens**: Tamanhos, pesos e famílias de fonte
+- **SpacingTokens**: Sistema de espaçamentos padronizados
+- **ComponentTokens**: Tokens específicos para componentes (button, input, card)
+
+**Configuração de Temas**:
+- **Theme Provider**: Context provider para distribuição do tema
+- **useTheme Hook**: Hook customizado para acesso ao tema atual
+- **Theme Tokens**: Sistema de design tokens organizados por categoria
+- **Color Palette**: Cores primárias, secundárias, neutras, semânticas
+- **Typography Scale**: Escala tipográfica responsiva (h1-h6, body, caption)
+- **Spacing Scale**: Sistema de espaçamentos baseado em múltiplos de 4px
+- **Component Variants**: Variações de componentes para cada tema
+- **Animation Tokens**: Durações e easings padronizados
+- **Shadow Tokens**: Sistema de sombras para elevação
+- **Border Radius**: Valores padronizados para bordas arredondadas
+
+**Sistema de Toast - Implementação**:
+- **Toast Manager**: Serviço para gerenciamento global de toasts
+- **Toast Component**: Componente base com animações e tipos
+- **Toast Queue**: Sistema de fila para controle de múltiplas mensagens
+- **Auto Dismiss**: Timer automático com pause on hover/touch
+- **Gesture Support**: Swipe to dismiss em dispositivos móveis
+- **Accessibility**: ARIA labels, screen reader support, focus management
+- **Custom Actions**: Botões de ação customizáveis (retry, undo, navigate)
+- **Persistence**: Toasts críticos que permanecem até ação do usuário
+- **Theming**: Cores e estilos que seguem o tema ativo
+- **Responsive**: Adaptação para diferentes tamanhos de tela
+
 **WebSocket Integration com Sistema de Fallback**:
 - **Eventos WebSocket**: Tipagem para eventos de votação em tempo real
 - **Status de Conexão**: Controle de estado (websocket, polling, offline)
@@ -227,180 +548,14 @@ src/
 - **Integração Redux**: Atualização automática do estado da aplicação
 - **Timeout**: Configuração de timeout para conexões
 - **Autenticação**: Token JWT para autenticação WebSocket
-        resolve();
-      });
 
-      this.socket.on('disconnect', (reason) => {
-        clearTimeout(connectTimeout);
-        this.isConnected = false;
-        this.updateConnectionStatus('websocket', false);
-        console.log('WebSocket desconectado:', reason);
-        
-        // Start polling as fallback
-        this.startPollingMode();
-        
-        // Attempt to reconnect
-        this.attemptReconnect(token);
-      });
-
-      this.socket.on('connect_error', (error) => {
-        clearTimeout(connectTimeout);
-        console.error('Erro de conexão WebSocket:', error);
-        reject(error);
-      });
-
-      this.setupEventListeners();
-    });
-  }
-
-  private setupEventListeners(): void {
-    if (!this.socket) return;
-
-    // Eventos de votação em tempo real
-    this.socket.on('voting.started', (data: WebSocketEvents['voting.started']) => {
-      store.dispatch(addNewVoting(data.voting));
-    });
-
-    this.socket.on('voting.ended', (data: WebSocketEvents['voting.ended']) => {
-      store.dispatch(endVoting(data.votingId));
-    });
-
-    this.socket.on('vote.cast', (data: WebSocketEvents['vote.cast']) => {
-      store.dispatch(addNewVote(data));
-    });
-
-    this.socket.on('results.updated', (data: WebSocketEvents['results.updated']) => {
-      store.dispatch(updateVotingResults(data));
-    });
-
-    this.socket.on('quorum.reached', (data: WebSocketEvents['quorum.reached']) => {
-      store.dispatch(setQuorumReached(data.votingId));
-    });
-  }
-
-  private startPollingMode(): void {
-    if (this.pollingInterval) return;
-    
-    this.updateConnectionStatus('polling', true);
-    console.log('Iniciando modo polling para votações');
-    
-    this.pollingInterval = setInterval(async () => {
-      try {
-        await this.pollVotingUpdates();
-      } catch (error) {
-        console.error('Erro no polling:', error);
-        this.updateConnectionStatus('offline', false);
-      }
-    }, this.pollingIntervalMs);
-  }
-
-  private stopPollingMode(): void {
-    if (this.pollingInterval) {
-      clearInterval(this.pollingInterval);
-      this.pollingInterval = null;
-      console.log('Modo polling interrompido');
-    }
-  }
-
-  private async pollVotingUpdates(): Promise<void> {
-    // Poll active votings for updates
-    for (const votingId of this.currentVotingRooms) {
-      try {
-        const results = await this.votingService.getVotingResults(votingId);
-        store.dispatch(updateVotingResults({ votingId, results }));
-      } catch (error) {
-        console.error(`Erro ao buscar resultados da votação ${votingId}:`, error);
-      }
-    }
-  }
-
-  private attemptReconnect(token: string): void {
-    if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-      console.log('Máximo de tentativas de reconexão atingido');
-      return;
-    }
-
-    this.reconnectAttempts++;
-    const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempts), 30000); // Exponential backoff
-    
-    setTimeout(async () => {
-      console.log(`Tentativa de reconexão ${this.reconnectAttempts}/${this.maxReconnectAttempts}`);
-      try {
-        await this.connectWebSocket(token);
-      } catch (error) {
-        console.warn('Reconexão WebSocket falhou, continuando com polling');
-      }
-    }, delay);
-  }
-
-  private rejoinVotingRooms(): void {
-    for (const votingId of this.currentVotingRooms) {
-      this.joinVotingRoom(votingId);
-    }
-  }
-
-  private updateConnectionStatus(type: ConnectionStatus['connectionType'], connected: boolean): void {
-    const status: ConnectionStatus = {
-      isConnected: connected,
-      connectionType: type,
-      lastConnected: connected ? new Date() : undefined,
-      reconnectAttempts: this.reconnectAttempts,
-    };
-    store.dispatch(setConnectionStatus(status));
-  }
-
-  joinVotingRoom(votingId: string): void {
-    this.currentVotingRooms.add(votingId);
-    
-    if (this.socket && this.isConnected) {
-      this.socket.emit('join-voting', { votingId });
-      console.log(`Entrou na sala de votação: ${votingId}`);
-    } else {
-      console.log(`Sala de votação ${votingId} será rejoinada quando conectar`);
-    }
-  }
-
-  leaveVotingRoom(votingId: string): void {
-    this.currentVotingRooms.delete(votingId);
-    
-    if (this.socket && this.isConnected) {
-      this.socket.emit('leave-voting', { votingId });
-      console.log(`Saiu da sala de votação: ${votingId}`);
-    }
-  }
-
-  disconnect(): void {
-    this.stopPollingMode();
-    this.currentVotingRooms.clear();
-    
-    if (this.socket) {
-      this.socket.disconnect();
-      this.socket = null;
-      this.isConnected = false;
-    }
-    
-    this.updateConnectionStatus('offline', false);
-  }
-
-  // Método para forçar atualização manual
-  async forceUpdate(): Promise<void> {
-    if (this.pollingInterval) {
-      await this.pollVotingUpdates();
-    }
-  }
-
-  // Getter para status de conexão
-  get connectionStatus(): ConnectionStatus {
-    return {
-      isConnected: this.isConnected,
-      connectionType: this.isConnected ? 'websocket' : (this.pollingInterval ? 'polling' : 'offline'),
-      lastConnected: this.isConnected ? new Date() : undefined,
-      reconnectAttempts: this.reconnectAttempts,
-    };
-  }
-}
-
-export default new WebSocketService();
+**Implementação WebSocket**:
+- **Event Listeners**: Configuração de listeners para eventos de votação
+- **Polling Mode**: Modo de fallback quando WebSocket não está disponível
+- **Reconnection Logic**: Estratégia de reconexão automática com backoff exponencial
+- **Room Management**: Gerenciamento de salas de votação
+- **Connection Status**: Monitoramento de status de conexão
+- **Force Update**: Método para atualização manual de dados
 ```
 
 **Serviço de Votação com Fallback**:
@@ -412,9 +567,6 @@ export default new WebSocketService();
 - **Expiração de Cache**: Controle de validade dos dados (30 segundos)
 - **Votos Pendentes**: Sistema de fila para votos offline
 - **Sincronização**: Reenvio automático quando conexão é restaurada
-
-
-
 
 #### Carteirinha Digital - Implementação Detalhada
 
@@ -495,32 +647,7 @@ export default new WebSocketService();
 - **Network State**: Getter para estado atual da conexão
 - **Action Processing**: Processamento sequencial de ações pendentes
 - **Error Recovery**: Remoção de ações que falharam múltiplas vezes
-  }
-
-  getPendingActionsCount(): number {
-    return this.pendingActions.length;
-  }
-
-  async clearCache(): Promise<void> {
-    try {
-      const keys = await AsyncStorage.getAllKeys();
-      const cacheKeys = keys.filter(key => key.startsWith('cache_'));
-      await AsyncStorage.multiRemove(cacheKeys);
-    } catch (error) {
-      console.error('Erro ao limpar cache:', error);
-      throw error;
-    }
-  }
-
-  destroy(): void {
-    if (this.networkUnsubscribe) {
-      this.networkUnsubscribe();
-    }
-  }
-}
-
-export default OfflineManager;
-```
+  
 
 #### Configuração TypeScript
 
@@ -860,80 +987,28 @@ export default OfflineManager;
 - **Dados Retornados**: ID, nome, número de matrícula, avatar, status, validade
 - **Autenticação**: Requer token válido via Sanctum
 - **Response**: JSON com dados formatados para o app mobile
-                'institution' => $user->institution?->name,
-                'department' => $user->department?->name,
-            ],
-            'qrSecret' => config('app.qr_secret'),
-        ]);
-    }
-    
-    public function updatePushToken(Request $request)
-    {
-        $request->validate([
-            'push_token' => 'required|string',
-            'device_type' => 'required|in:ios,android',
-        ]);
-        
-        $user = $request->user();
-        $user->update([
-            'push_token' => $request->push_token,
-            'device_type' => $request->device_type,
-        ]);
-        
-        return response()->json(['message' => 'Push token atualizado com sucesso']);
-    }
-}
-```
+- **updatePushToken()**: Método para atualizar token de push notifications
+- **Validação**: Validação de push_token e device_type (ios/android)
+- **Atualização**: Salva token e tipo de dispositivo no banco de dados
 
 #### Testes e Qualidade
 
 **Configuração de Testes**:
-```javascript
-// __tests__/components/DigitalCard.test.js
-import React from 'react';
-import { render } from '@testing-library/react-native';
-import { Provider } from 'react-redux';
-import { store } from '../src/store';
-import DigitalCard from '../src/screens/identity/DigitalCard';
-
-const renderWithProvider = (component) => {
-  return render(
-    <Provider store={store}>
-      {component}
-    </Provider>
-  );
-};
-
-describe('DigitalCard', () => {
-  it('renders user information correctly', () => {
-    const { getByText } = renderWithProvider(<DigitalCard />);
-    expect(getByText('CARTEIRINHA DIGITAL')).toBeTruthy();
-  });
-  
-  it('generates QR code with valid data', () => {
-    // Test QR code generation
-  });
-});
+- **Testing Library**: @testing-library/react-native para testes de componentes
+- **Jest**: Framework de testes integrado ao React Native
+- **Provider Wrapper**: Wrapper com Redux store para testes
+- **Testes de Componentes**: Verificação de renderização e funcionalidades
+- **Testes de QR Code**: Validação de geração de códigos QR
+- **Mocks**: Simulação de APIs e serviços externos
 ```
 
 **Scripts de Build**:
-```json
-// package.json
-{
-  "scripts": {
-    "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
-    "web": "expo start --web",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "build:android": "eas build --platform android",
-    "build:ios": "eas build --platform ios",
-    "submit:android": "eas submit --platform android",
-    "submit:ios": "eas submit --platform ios"
-  }
-}
+- **start**: Inicia o servidor de desenvolvimento Expo
+- **android/ios/web**: Inicia para plataformas específicas
+- **test**: Executa testes com Jest
+- **lint**: Verificação de código com ESLint
+- **build**: Builds para Android e iOS via EAS
+- **submit**: Submissão para stores via EAS
 ```
 
 ### Sistema de Logs Centralizados e Telemetria
@@ -1380,6 +1455,10 @@ Instituição
 │   └── Departamento 3
 └── ...
 ```
+- **Instituição**: Nível superior da hierarquia
+- **Endereços**: Múltiplos endereços por instituição
+- **Departamentos**: Múltiplos departamentos por endereço
+- **Relacionamento**: Estrutura em árvore com três níveis
 
 ### 1. Cadastro de Instituições
 - **Campos obrigatórios**:
@@ -1432,7 +1511,6 @@ Instituição
   - Possibilidade de deixar campos em branco
 
 ### Regras de Negócio
-
 #### Unicidade de Dados
 - **Instituição**: Nomes únicos no sistema inteiro
 - **Endereço**: Título único por instituição
@@ -1717,37 +1795,300 @@ Instituição
       - Otimização para dispositivos móveis
       - Galeria de mídia integrada com editor de imagens
   - **Módulo de Aprovação de Convênios** (Diretor):
-    - Lista de convênios pendentes de aprovação
-    - Interface para aprovar/rejeitar convênios
-    - Histórico de aprovações realizadas
-    - Relatórios de convênios por parceiro
+    - **Fila de Aprovação**:
+      - Lista prioritizada de convênios pendentes por data de submissão
+      - Filtros por parceiro, categoria, tipo de desconto e valor
+      - Indicadores visuais de urgência (próximo ao vencimento)
+      - Busca por nome do convênio ou parceiro
+      - Ordenação por diferentes critérios (data, parceiro, categoria)
+      - Contador de convênios pendentes em tempo real
+    - **Interface de Análise Detalhada**:
+      - **Visualização Completa do Convênio**:
+        - Todos os dados fornecidos pelo parceiro
+        - Preview de como aparecerá no catálogo público
+        - Análise de materiais promocionais enviados
+        - Verificação de termos e condições
+        - Histórico de convênios anteriores do mesmo parceiro
+      - **Ferramentas de Avaliação**:
+        - Checklist de critérios de aprovação
+        - Verificação automática de dados obrigatórios
+        - Análise de conflitos com convênios existentes
+        - Validação de informações empresariais do parceiro
+        - Sistema de pontuação baseado em critérios pré-definidos
+      - **Comunicação com Parceiro**:
+        - Sistema de comentários para solicitar alterações
+        - Templates de mensagens pré-definidas
+        - Histórico de comunicação anterior
+        - Notificações automáticas de status
+    - **Ações de Aprovação**:
+      - **Aprovar Convênio**:
+        - Aprovação simples com ativação imediata
+        - Aprovação condicional com data de início específica
+        - Aprovação com modificações sugeridas
+        - Comentários opcionais para o parceiro
+      - **Rejeitar Convênio**:
+        - Seleção de motivos pré-definidos de rejeição
+        - Campo obrigatório para justificativa detalhada
+        - Sugestões de melhorias para resubmissão
+        - Opção de agendar reunião com parceiro
+      - **Solicitar Alterações**:
+        - Lista específica de itens a serem corrigidos
+        - Prazo para reenvio das correções
+        - Manter convênio na fila com prioridade
+        - Notificação automática ao parceiro
+      - **Suspender Convênio Ativo**:
+        - Suspensão temporária com motivo
+        - Definição de prazo para regularização
+        - Notificação aos associados sobre suspensão
+        - Processo de reativação simplificado
+    - **Sistema de Workflow**:
+      - **Aprovação em Múltiplas Etapas**:
+        - Primeira análise: verificação técnica
+        - Segunda análise: aprovação comercial
+        - Aprovação final: liberação para publicação
+        - Possibilidade de delegar aprovações
+      - **Aprovação Colaborativa**:
+        - Sistema de votação entre múltiplos diretores
+        - Comentários e discussões internas
+        - Consenso obrigatório para convênios de alto valor
+        - Histórico de decisões em grupo
+    - **Relatórios e Analytics**:
+      - **Histórico de Aprovações**:
+        - Lista completa de todas as decisões tomadas
+        - Filtros por período, parceiro, diretor responsável
+        - Estatísticas de tempo médio de aprovação
+        - Taxa de aprovação vs rejeição por diretor
+      - **Performance de Parceiros**:
+        - Ranking de parceiros por qualidade de submissões
+        - Histórico de convênios por parceiro
+        - Taxa de aprovação por empresa
+        - Análise de melhorias ao longo do tempo
+      - **Métricas do Sistema**:
+        - Tempo médio de análise por convênio
+        - Gargalos no processo de aprovação
+        - Convênios mais populares após aprovação
+        - ROI dos convênios aprovados
+    - **Configurações e Critérios**:
+      - **Critérios de Aprovação**:
+        - Definição de regras automáticas de pré-aprovação
+        - Configuração de limites de desconto por categoria
+        - Blacklist de termos ou práticas não permitidas
+        - Critérios de qualidade para materiais promocionais
+      - **Automação de Processos**:
+        - Aprovação automática para parceiros confiáveis
+        - Rejeição automática por critérios específicos
+        - Alertas para convênios que requerem atenção especial
+        - Escalação automática para supervisores
+    - **Auditoria e Compliance**:
+      - Log completo de todas as ações realizadas
+      - Rastreabilidade de decisões e justificativas
+      - Relatórios de compliance para auditoria
+      - Backup de dados de aprovações
 - **Parceiro Dashboard**:
   - **Módulo de Gestão de Convênios**:
-    - Interface para criação de novos convênios
-    - Edição de convênios próprios (pendentes/rejeitados)
-    - Visualização de status de aprovação
-    - Upload de materiais promocionais
+    - **Interface de Criação de Convênios**:
+      - Formulário completo com campos obrigatórios:
+        - Nome do convênio (máximo 100 caracteres)
+        - Descrição detalhada do benefício (máximo 500 caracteres)
+        - Tipo de desconto: percentual (1-100%), valor fixo (R$), ou promoção especial
+        - Categoria do benefício (dropdown com opções pré-definidas)
+        - Data de início e fim da validade
+        - Termos e condições de uso (campo de texto longo)
+        - Limite de uso por associado (opcional)
+        - Dias da semana válidos (seleção múltipla)
+        - Horário de funcionamento do benefício
+      - **Upload de Materiais Promocionais**:
+        - Logo da empresa (formato PNG/JPG, máximo 2MB)
+        - Imagem promocional do convênio (formato PNG/JPG, máximo 5MB)
+        - Banner para divulgação (formato PNG/JPG, dimensões específicas)
+        - Galeria de imagens adicionais (máximo 5 imagens)
+      - **Preview do Convênio**: Visualização de como aparecerá no catálogo
+      - **Sistema de Rascunhos**: Salvar progresso sem enviar para aprovação
+      - **Validação de Campos**: Verificação em tempo real de dados obrigatórios
+    - **Gestão de Convênios Existentes**:
+      - Lista de todos os convênios criados com filtros por status
+      - Edição de convênios pendentes ou rejeitados
+      - Duplicação de convênios para criar versões similares
+      - Visualização detalhada do status de aprovação
+      - Histórico de alterações e comentários dos diretores
+      - Ações em lote: suspender, reativar, excluir múltiplos convênios
+    - **Dashboard de Performance**:
+      - Métricas em tempo real de visualizações por convênio
+      - Gráficos de utilização por período (diário, semanal, mensal)
+      - Taxa de conversão: visualizações vs utilizações
+      - Ranking dos convênios mais populares
+      - Comparativo de performance entre convênios
   - **Módulo de Gestão de Colaboradores**:
-    - Cadastro de colaboradores da empresa
-    - Definição de permissões de acesso
-    - Controle de acesso ao sistema de validação
-    - Histórico de atividades dos colaboradores
-  - **Módulo de Relatórios**:
-    - Estatísticas de uso dos convênios
-    - Relatórios de associados que utilizaram
-    - Métricas de engajamento e conversão
-    - Relatórios de validações por colaborador
+    - **Cadastro de Colaboradores**:
+      - Formulário com dados pessoais e profissionais
+      - Definição de permissões específicas por colaborador
+      - Controle de acesso ao sistema de validação
+      - Configuração de horários de trabalho
+      - Status ativo/inativo para controle de acesso
+    - **Gestão de Equipe**:
+      - Lista de todos os colaboradores com filtros
+      - Edição de permissões e dados dos colaboradores
+      - Histórico detalhado de atividades por colaborador
+      - Relatórios de produtividade individual
+      - Sistema de notificações para colaboradores
+    - **Controle de Validações**:
+      - Dashboard de validações em tempo real
+      - Estatísticas de validações por colaborador
+      - Alertas de atividades suspeitas ou irregulares
+      - Logs de acesso ao sistema de validação
+  - **Módulo de Relatórios Avançados**:
+    - **Analytics de Convênios**:
+      - Estatísticas detalhadas de uso por convênio
+      - Relatórios de associados que utilizaram benefícios
+      - Análise demográfica dos usuários (idade, região, departamento)
+      - Métricas de engajamento e satisfação
+      - Comparativo de performance mensal/anual
+    - **Relatórios de Validação**:
+      - Relatórios detalhados por colaborador validador
+      - Estatísticas de validações por período
+      - Análise de horários de maior movimento
+      - Relatórios de eficiência da equipe
+    - **Exportação de Dados**:
+      - Relatórios em PDF para apresentações
+      - Exportação em Excel para análises externas
+      - Relatórios personalizados com filtros específicos
+      - Agendamento de relatórios automáticos por email
   - **Módulo de Perfil da Empresa**:
-    - Gestão de dados da empresa parceira
-    - Configurações de contato e suporte
+    - **Gestão de Dados Empresariais**:
+      - Informações básicas: CNPJ, razão social, nome fantasia
+      - Endereço completo com múltiplas filiais
+      - Dados de contato: telefones, emails, site, redes sociais
+      - Horário de funcionamento por filial
+      - Descrição da empresa e história
+    - **Configurações de Conta**:
+      - Alteração de senha e dados de acesso
+      - Configurações de notificações por email/SMS
+      - Preferências de relatórios e dashboards
+      - Configuração de backup de dados
+    - **Suporte e Atendimento**:
+      - Canal direto com suporte do sindicato
+      - FAQ específico para parceiros
+      - Histórico de tickets de suporte
+      - Chat online com equipe de relacionamento
 
 - **Colaborador de Parceiro Dashboard**:
   - **Módulo Validador de Convênios**:
-    - Interface para escaneamento de QR codes
-    - Validação em tempo real da autenticidade
-    - Confirmação de utilização do benefício
-    - Histórico de validações realizadas
-    - Relatórios de atividade diária
+    - **Interface de Escaneamento**:
+      - Scanner de QR Code integrado com câmera
+      - Entrada manual de código para casos especiais
+      - Interface responsiva para dispositivos móveis e desktop
+      - Feedback visual e sonoro para validações
+      - Modo offline com sincronização posterior
+    - **Sistema de Verificação de Usuários**:
+      - **Validação de Identidade**:
+        - Verificação automática de dados do associado
+        - Comparação com foto do perfil (se disponível)
+        - Validação de documento de identidade (RG/CPF)
+        - Verificação de status de associação ativo
+        - Checklist de segurança para validação manual
+      - **Verificação de Elegibilidade**:
+        - Confirmação de que o usuário pode utilizar o convênio
+        - Verificação de limites de uso por período
+        - Validação de categoria de associação compatível
+        - Checagem de restrições específicas do convênio
+        - Verificação de blacklist ou suspensões
+      - **Validação do Convênio**:
+        - Confirmação de que o convênio está ativo
+        - Verificação de validade temporal (data/hora)
+        - Checagem de disponibilidade do benefício
+        - Validação de termos e condições específicas
+        - Verificação de estoque ou limite de uso
+    - **Processo de Validação Completo**:
+      - **Etapa 1 - Escaneamento**:
+        - Leitura do QR Code do associado
+        - Decodificação segura das informações
+        - Verificação de integridade dos dados
+        - Validação de timestamp e expiração
+      - **Etapa 2 - Verificação de Dados**:
+        - Consulta em tempo real ao banco de dados
+        - Validação cruzada de informações
+        - Verificação de autenticidade do código
+        - Checagem de uso anterior (duplicação)
+      - **Etapa 3 - Confirmação de Identidade**:
+        - Exibição de dados do associado para conferência
+        - Solicitação de documento de identidade
+        - Comparação visual de informações
+        - Confirmação manual pelo colaborador
+      - **Etapa 4 - Aplicação do Benefício**:
+        - Cálculo automático do desconto
+        - Exibição do valor final
+        - Confirmação da utilização
+        - Registro da transação no sistema
+    - **Ferramentas de Segurança**:
+      - **Detecção de Fraudes**:
+        - Algoritmos de detecção de QR codes falsificados
+        - Alertas para tentativas de uso duplicado
+        - Verificação de padrões suspeitos de uso
+        - Sistema de bandeiras vermelhas automáticas
+      - **Validação Biométrica** (opcional):
+        - Comparação de foto facial
+        - Verificação de impressão digital
+        - Reconhecimento de voz
+        - Autenticação multifator
+      - **Logs de Segurança**:
+        - Registro detalhado de todas as tentativas
+        - Captura de screenshots das validações
+        - Log de IPs e dispositivos utilizados
+        - Rastreamento de atividades suspeitas
+    - **Interface de Gestão**:
+      - **Dashboard em Tempo Real**:
+        - Contador de validações do dia
+        - Status de convênios ativos
+        - Alertas de segurança
+        - Métricas de performance
+      - **Histórico Detalhado**:
+        - Lista de todas as validações realizadas
+        - Filtros por data, convênio, status
+        - Busca por nome ou CPF do associado
+        - Exportação de relatórios
+      - **Ferramentas de Apoio**:
+        - FAQ para situações comuns
+        - Contato direto com suporte
+        - Manual de procedimentos
+        - Vídeos tutoriais integrados
+    - **Relatórios e Analytics**:
+      - **Relatórios de Atividade**:
+        - Validações por período (diário, semanal, mensal)
+        - Estatísticas de convênios mais utilizados
+        - Análise de horários de maior movimento
+        - Performance individual do colaborador
+      - **Métricas de Qualidade**:
+        - Taxa de validações bem-sucedidas
+        - Tempo médio de validação
+        - Número de tentativas de fraude detectadas
+        - Satisfação dos associados (feedback)
+      - **Relatórios Gerenciais**:
+        - Resumo executivo para o parceiro
+        - Comparativo com outros colaboradores
+        - Sugestões de melhorias no processo
+        - Análise de ROI das validações
+    - **Configurações e Personalização**:
+      - **Configurações de Interface**:
+        - Personalização de layout
+        - Configuração de notificações
+        - Ajustes de sensibilidade do scanner
+        - Preferências de relatórios
+      - **Configurações de Segurança**:
+        - Níveis de validação obrigatória
+        - Configuração de alertas
+        - Definição de limites de validação
+        - Configuração de backup de dados
+    - **Suporte e Treinamento**:
+      - **Material de Treinamento**:
+        - Guias passo a passo
+        - Vídeos explicativos
+        - Simulador de validações
+        - Certificação de colaboradores
+      - **Suporte Técnico**:
+        - Chat online com suporte
+        - Tickets de suporte técnico
+        - FAQ específico para validadores
+        - Atualizações e melhorias do sistema
 - **Associado Dashboard**: 
   - Serviços e informações
   - **Módulo de Convênios**:
@@ -2811,344 +3152,58 @@ Instituição
 #### Configuração Docker Compose
 
 **docker-compose.observability.yml**:
-```yaml
-version: '3.8'
-services:
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
-    container_name: elasticsearch
-    environment:
-      - cluster.name=sindicato-logs
-      - node.name=es-node-1
-      - discovery.type=single-node
-      - "ES_JAVA_OPTS=-Xms2g -Xmx2g"
-      - xpack.security.enabled=false
-    volumes:
-      - elasticsearch_data:/usr/share/elasticsearch/data
-      - ./config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
-    ports:
-      - "9200:9200"
-    networks:
-      - observability
-    restart: unless-stopped
-
-  logstash:
-    image: docker.elastic.co/logstash/logstash:8.11.0
-    container_name: logstash
-    volumes:
-      - ./config/logstash/pipeline:/usr/share/logstash/pipeline
-      - ./config/logstash/logstash.yml:/usr/share/logstash/config/logstash.yml
-      - /var/log:/var/log:ro
-    ports:
-      - "5044:5044"
-      - "9600:9600"
-    environment:
-      - "LS_JAVA_OPTS=-Xms1g -Xmx1g"
-    networks:
-      - observability
-    depends_on:
-      - elasticsearch
-    restart: unless-stopped
-
-  kibana:
-    image: docker.elastic.co/kibana/kibana:8.11.0
-    container_name: kibana
-    ports:
-      - "5601:5601"
-    environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-      - SERVER_NAME=kibana.sindicato.local
-    volumes:
-      - ./config/kibana.yml:/usr/share/kibana/config/kibana.yml
-    networks:
-      - observability
-    depends_on:
-      - elasticsearch
-    restart: unless-stopped
-
-  prometheus:
-    image: prom/prometheus:v2.47.0
-    container_name: prometheus
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
-      - ./config/alert_rules.yml:/etc/prometheus/alert_rules.yml
-      - prometheus_data:/prometheus
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/etc/prometheus/console_libraries'
-      - '--web.console.templates=/etc/prometheus/consoles'
-      - '--storage.tsdb.retention.time=30d'
-      - '--web.enable-lifecycle'
-    networks:
-      - observability
-    restart: unless-stopped
-
-  grafana:
-    image: grafana/grafana:10.2.0
-    container_name: grafana
-    ports:
-      - "3000:3000"
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin123
-      - GF_USERS_ALLOW_SIGN_UP=false
-      - GF_INSTALL_PLUGINS=grafana-piechart-panel,grafana-worldmap-panel
-    volumes:
-      - grafana_data:/var/lib/grafana
-      - ./config/grafana/provisioning:/etc/grafana/provisioning
-      - ./config/grafana/dashboards:/var/lib/grafana/dashboards
-    networks:
-      - observability
-    restart: unless-stopped
-
-  filebeat:
-    image: docker.elastic.co/beats/filebeat:8.11.0
-    container_name: filebeat
-    user: root
-    volumes:
-      - ./config/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /var/log:/var/log:ro
-    networks:
-      - observability
-    depends_on:
-      - logstash
-    restart: unless-stopped
-
-  node-exporter:
-    image: prom/node-exporter:v1.6.1
-    container_name: node-exporter
-    ports:
-      - "9100:9100"
-    volumes:
-      - /proc:/host/proc:ro
-      - /sys:/host/sys:ro
-      - /:/rootfs:ro
-    command:
-      - '--path.procfs=/host/proc'
-      - '--path.rootfs=/rootfs'
-      - '--path.sysfs=/host/sys'
-      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
-    networks:
-      - observability
-    restart: unless-stopped
-
-volumes:
-  elasticsearch_data:
-  prometheus_data:
-  grafana_data:
-
-networks:
-  observability:
-    driver: bridge
-```
+- **Elasticsearch**: Cluster para armazenamento de logs com configuração single-node
+- **Logstash**: Pipeline de processamento de logs com filtros customizados
+- **Kibana**: Interface web para visualização e análise de logs
+- **Prometheus**: Sistema de métricas com retenção de 30 dias
+- **Grafana**: Dashboards para visualização de métricas e alertas
+- **Filebeat**: Coleta de logs de containers Docker
+- **Node Exporter**: Métricas do sistema operacional
+- **Volumes**: Persistência de dados para Elasticsearch, Prometheus e Grafana
+- **Network**: Rede isolada para comunicação entre serviços
 
 #### Configuração Laravel para Logs Estruturados
 
 **config/logging.php**:
-```php
-'channels' => [
-    'stack' => [
-        'driver' => 'stack',
-        'channels' => ['single', 'elasticsearch'],
-        'ignore_exceptions' => false,
-    ],
-    
-    'elasticsearch' => [
-        'driver' => 'custom',
-        'via' => App\Logging\ElasticsearchLogger::class,
-        'level' => 'debug',
-        'index' => 'sindicato-logs',
-    ],
-    
-    'structured' => [
-        'driver' => 'single',
-        'path' => storage_path('logs/structured.log'),
-        'level' => 'debug',
-        'formatter' => App\Logging\StructuredFormatter::class,
-    ],
-],
-```
+- **Stack Channel**: Combinação de múltiplos canais (single + elasticsearch)
+- **Elasticsearch Channel**: Driver customizado para envio direto ao Elasticsearch
+- **Structured Channel**: Logs estruturados em JSON com formatter customizado
+- **Configurações**: Níveis de log, índices e formatadores específicos
 
 **app/Logging/StructuredFormatter.php**:
-```php
-class StructuredFormatter implements FormatterInterface
-{
-    public function format(LogRecord $record): string
-    {
-        $data = [
-            'timestamp' => $record->datetime->format('Y-m-d\TH:i:s.uP'),
-            'level' => $record->level->getName(),
-            'message' => $record->message,
-            'context' => $record->context,
-            'extra' => [
-                'user_id' => auth()->id(),
-                'session_id' => session()->getId(),
-                'request_id' => request()->header('X-Request-ID'),
-                'ip_address' => request()->ip(),
-                'user_agent' => request()->userAgent(),
-                'url' => request()->fullUrl(),
-                'method' => request()->method(),
-            ],
-        ];
-        
-        return json_encode($data) . "\n";
-    }
-}
-```
+- **FormatterInterface**: Implementa interface padrão do Monolog
+- **Dados Estruturados**: Timestamp, level, message, context e extra
+- **Informações de Request**: User ID, session, IP, user agent, URL, método
+- **Formato JSON**: Saída estruturada em JSON para facilitar parsing
+- **Request ID**: Rastreamento de requisições através de header customizado
 
 #### Middleware de Logging e Métricas
 
 **app/Http/Middleware/RequestLogging.php**:
-```php
-class RequestLogging
-{
-    public function handle($request, Closure $next)
-    {
-        $startTime = microtime(true);
-        $requestId = Str::uuid();
-        $request->headers->set('X-Request-ID', $requestId);
-        
-        Log::info('Request started', [
-            'request_id' => $requestId,
-            'method' => $request->method(),
-            'url' => $request->fullUrl(),
-            'ip' => $request->ip(),
-            'user_agent' => $request->userAgent(),
-            'user_id' => auth()->id(),
-        ]);
-        
-        $response = $next($request);
-        
-        $duration = (microtime(true) - $startTime) * 1000;
-        
-        Log::info('Request completed', [
-            'request_id' => $requestId,
-            'status_code' => $response->getStatusCode(),
-            'duration_ms' => round($duration, 2),
-            'memory_usage' => memory_get_peak_usage(true),
-        ]);
-        
-        // Enviar métricas para Prometheus
-        $this->recordMetrics($request, $response, $duration);
-        
-        return $response;
-    }
-    
-    private function recordMetrics($request, $response, $duration)
-    {
-        $labels = [
-            'method' => $request->method(),
-            'route' => $request->route()?->getName() ?? 'unknown',
-            'status_code' => $response->getStatusCode(),
-        ];
-        
-        // Incrementar contador de requests
-        Prometheus::counter('http_requests_total', 'Total HTTP requests')
-            ->labels($labels)
-            ->inc();
-            
-        // Registrar duração
-        Prometheus::histogram('http_request_duration_ms', 'HTTP request duration')
-            ->labels($labels)
-            ->observe($duration);
-    }
-}
-```
+- **Request ID**: Geração de UUID único para rastreamento de requisições
+- **Logging Estruturado**: Log de início e fim de requisições com contexto
+- **Métricas de Performance**: Medição de duração e uso de memória
+- **Integração Prometheus**: Envio automático de métricas (contadores e histogramas)
+- **Labels**: Categorização por método, rota e status code
+- **Observabilidade**: Rastreamento completo do ciclo de vida das requisições
 
 #### Configuração Prometheus
 
 **config/prometheus.yml**:
-```yaml
-global:
-  scrape_interval: 15s
-  evaluation_interval: 15s
-
-rule_files:
-  - "alert_rules.yml"
-
-scrape_configs:
-  - job_name: 'prometheus'
-    static_configs:
-      - targets: ['localhost:9090']
-
-  - job_name: 'node-exporter'
-    static_configs:
-      - targets: ['node-exporter:9100']
-
-  - job_name: 'laravel-app'
-    static_configs:
-      - targets: ['app:8080']
-    metrics_path: '/metrics'
-    scrape_interval: 30s
-
-  - job_name: 'nginx'
-    static_configs:
-      - targets: ['nginx:9113']
-
-  - job_name: 'postgres'
-    static_configs:
-      - targets: ['postgres-exporter:9187']
-
-  - job_name: 'redis'
-    static_configs:
-      - targets: ['redis-exporter:9121']
-
-alerting:
-  alertmanagers:
-    - static_configs:
-        - targets:
-          - alertmanager:9093
-```
+- **Global**: Intervalo de coleta e avaliação de 15 segundos
+- **Rule Files**: Arquivo de regras de alertas
+- **Scrape Configs**: Jobs para coleta de métricas de diferentes serviços
+- **Targets**: Prometheus, Node Exporter, Laravel App, Nginx, PostgreSQL, Redis
+- **Alerting**: Configuração do Alertmanager para notificações
 
 #### Regras de Alertas
 
 **config/alert_rules.yml**:
-```yaml
-groups:
-  - name: infrastructure
-    rules:
-      - alert: HighCPUUsage
-        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
-        for: 5m
-        labels:
-          severity: warning
-        annotations:
-          summary: "High CPU usage detected"
-          description: "CPU usage is above 80% for more than 5 minutes"
-
-      - alert: HighMemoryUsage
-        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 85
-        for: 3m
-        labels:
-          severity: critical
-        annotations:
-          summary: "High memory usage detected"
-          description: "Memory usage is above 85% for more than 3 minutes"
-
-  - name: application
-    rules:
-      - alert: HighErrorRate
-        expr: rate(http_requests_total{status_code=~"5.."}[5m]) / rate(http_requests_total[5m]) * 100 > 5
-        for: 5m
-        labels:
-          severity: critical
-        annotations:
-          summary: "High error rate detected"
-          description: "Error rate is above 5% for more than 5 minutes"
-
-      - alert: SlowResponseTime
-        expr: histogram_quantile(0.95, rate(http_request_duration_ms_bucket[5m])) > 2000
-        for: 3m
-        labels:
-          severity: warning
-        annotations:
-          summary: "Slow response time detected"
-          description: "95th percentile response time is above 2 seconds"
-```
+- **Infrastructure Group**: Alertas de infraestrutura (CPU, memória)
+- **Application Group**: Alertas de aplicação (taxa de erro, tempo de resposta)
+- **Severidades**: Warning e Critical com diferentes thresholds
+- **Métricas**: CPU > 80%, Memória > 85%, Erro > 5%, Resposta > 2s
+- **Duração**: Alertas disparados após períodos específicos (3-5 minutos)
 
 #### Dashboards Grafana Pré-configurados
 
@@ -3173,34 +3228,11 @@ groups:
 #### Scripts de Deployment e Manutenção
 
 **scripts/deploy-observability.sh**:
-```bash
-#!/bin/bash
-
-# Deploy do stack de observabilidade
-docker-compose -f docker-compose.observability.yml up -d
-
-# Aguardar serviços ficarem prontos
-echo "Aguardando Elasticsearch..."
-until curl -s http://localhost:9200/_cluster/health | grep -q '"status":"green"'; do
-  sleep 5
-done
-
-# Configurar índices do Elasticsearch
-curl -X PUT "localhost:9200/_index_template/sindicato-logs" -H 'Content-Type: application/json' -d @config/elasticsearch-template.json
-
-# Importar dashboards do Grafana
-echo "Importando dashboards do Grafana..."
-for dashboard in config/grafana/dashboards/*.json; do
-  curl -X POST "http://admin:admin123@localhost:3000/api/dashboards/db" \
-    -H "Content-Type: application/json" \
-    -d @"$dashboard"
-done
-
-echo "Stack de observabilidade deployado com sucesso!"
-echo "Kibana: http://localhost:5601"
-echo "Grafana: http://localhost:3000 (admin/admin123)"
-echo "Prometheus: http://localhost:9090"
-```
+- Deploy do stack de observabilidade
+- Configuração automática de índices do Elasticsearch
+- Importação de dashboards do Grafana
+- Verificação de saúde dos serviços
+- URLs de acesso: Kibana, Grafana, Prometheus
 
 ### Sistema de Programação e Calendário
 - **Agendamento Automático**:
@@ -3225,7 +3257,6 @@ echo "Prometheus: http://localhost:9090"
   - Cálculo de tendências e padrões de consumo
   - Geração de relatórios automatizados
   - Alertas de performance anômala
-
 ### Sistema de Interação Social Técnico
 - **Sistema de Likes**:
   - Endpoint REST para curtir/descurtir
@@ -3259,58 +3290,16 @@ echo "Prometheus: http://localhost:9090"
      - **Preview**: Visualização em tempo real do conteúdo formatado
      - **Responsivo**: Interface adaptável para diferentes tamanhos de tela
    - **Configuração do TinyMCE**:
-     ```javascript
-     tinymce.init({
-       selector: '#news-content',
-       height: 500,
-       menubar: true,
-       plugins: [
-         'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
-         'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
-         'insertdatetime', 'media', 'table', 'help', 'wordcount', 'emoticons'
-       ],
-       toolbar: 'undo redo | blocks | bold italic underline strikethrough | ' +
-                'alignleft aligncenter alignright alignjustify | ' +
-                'bullist numlist outdent indent | removeformat | ' +
-                'forecolor backcolor | link image media | ' +
-                'table tabledelete | tableprops tablerowprops tablecellprops | ' +
-                'tableinsertrowbefore tableinsertrowafter tabledeleterow | ' +
-                'tableinsertcolbefore tableinsertcolafter tabledeletecol | ' +
-                'code preview fullscreen | emoticons charmap | help',
-       content_style: 'body { font-family: Arial, sans-serif; font-size: 14px; }',
-       language: 'pt_BR',
-       branding: false,
-       promotion: false,
-       image_upload_handler: function (blobInfo, success, failure) {
-         // Integração com upload de imagens do Laravel
-         const formData = new FormData();
-         formData.append('image', blobInfo.blob(), blobInfo.filename());
-         
-         fetch('/admin/news/upload-image', {
-           method: 'POST',
-           body: formData,
-           headers: {
-             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-           }
-         })
-         .then(response => response.json())
-         .then(result => {
-           if (result.success) {
-             success(result.url);
-           } else {
-             failure('Erro no upload: ' + result.message);
-           }
-         })
-         .catch(() => failure('Erro de conexão'));
-       },
-       setup: function (editor) {
-         editor.on('change', function () {
-           // Auto-save do conteúdo
-           const content = editor.getContent();
-           localStorage.setItem('news_draft_' + newsId, content);
-         });
-       }
-     });
+     - **Selector**: Campo de texto para edição de conteúdo
+     - **Height**: Altura do editor (500px)
+     - **Menubar**: Barra de menu completa habilitada
+     - **Plugins**: Lista de plugins para funcionalidades avançadas
+     - **Toolbar**: Barra de ferramentas completa com formatação, tabelas, mídia
+     - **Content Style**: Estilo padrão do conteúdo (Arial, 14px)
+     - **Language**: Português brasileiro
+     - **Image Upload**: Handler customizado para upload via Laravel
+     - **Auto-save**: Salvamento automático no localStorage
+     - **CSRF Protection**: Token de segurança para uploads
      ```
    - **Funcionalidades Avançadas**:
      - **Auto-save**: Salvamento automático a cada 30 segundos
@@ -3424,117 +3413,40 @@ echo "Prometheus: http://localhost:9090"
      ```
    
    - **Processamento de Imagens (Laravel)**:
-     ```php
-     // Configuração de upload e processamento
-     'image_processing' => [
-         'driver' => 'imagick', // ou 'gd'
-         'quality' => 85,
-         'formats' => ['jpg', 'png', 'webp', 'gif'],
-         'max_size' => 10240, // 10MB
-         'thumbnails' => [
-             'small' => [150, 150],
-             'medium' => [300, 300],
-             'large' => [800, 600],
-             'carousel' => [1200, 800]
-         ],
-         'watermark' => [
-             'enabled' => true,
-             'image' => 'watermark.png',
-             'position' => 'bottom-right',
-             'opacity' => 0.7
-         ]
-     ]
-     ```
+     - **Configuração de Upload e Processamento**:
+       - **Driver**: Imagick ou GD para processamento
+       - **Qualidade**: 85% para otimização
+       - **Formatos**: JPG, PNG, WebP, GIF
+       - **Tamanho Máximo**: 10MB por arquivo
+       - **Thumbnails**: Múltiplos tamanhos (small, medium, large, carousel)
+       - **Marca d'água**: Configurável com posição e opacidade
    
    - **API Endpoints para Imagens**:
-     ```php
-     // routes/web.php
-     Route::prefix('admin/news')->group(function () {
-         Route::post('upload-image', [NewsController::class, 'uploadImage']);
-         Route::post('upload-multiple', [NewsController::class, 'uploadMultiple']);
-         Route::post('reorder-images', [NewsController::class, 'reorderImages']);
-         Route::delete('delete-image/{id}', [NewsController::class, 'deleteImage']);
-         Route::post('edit-image/{id}', [NewsController::class, 'editImage']);
-         Route::get('gallery/{newsId}', [NewsController::class, 'getGallery']);
-     });
-     ```
-
+     - **POST upload-image**: Upload de imagem individual
+     - **POST upload-multiple**: Upload múltiplo de imagens
+     - **POST reorder-images**: Reordenação de imagens
+     - **DELETE delete-image/{id}**: Exclusão de imagem
+     - **POST edit-image/{id}**: Edição de metadados
+     - **GET gallery/{newsId}**: Galeria de imagens da notícia
 6. **Interface Frontend do Carrossel**:
    - **Configuração JavaScript**:
-     ```javascript
-     // Inicialização do carrossel Swiper.js
-     const newsCarousel = new Swiper('.news-carousel', {
-       slidesPerView: 1,
-       spaceBetween: 10,
-       loop: true,
-       autoplay: {
-         delay: 5000,
-         disableOnInteraction: false,
-       },
-       pagination: {
-         el: '.swiper-pagination',
-         clickable: true,
-       },
-       navigation: {
-         nextEl: '.swiper-button-next',
-         prevEl: '.swiper-button-prev',
-       },
-       breakpoints: {
-         640: {
-           slidesPerView: 2,
-           spaceBetween: 20,
-         },
-         768: {
-           slidesPerView: 3,
-           spaceBetween: 30,
-         },
-         1024: {
-           slidesPerView: 4,
-           spaceBetween: 40,
-         },
-       },
-       lazy: {
-         loadPrevNext: true,
-       },
-       zoom: {
-         maxRatio: 3,
-       }
-     });
-     ```
+     - **Biblioteca**: Swiper.js para carrossel responsivo
+     - **Configurações**: slidesPerView, spaceBetween, loop, autoplay
+     - **Autoplay**: Delay de 5000ms, sem desabilitar na interação
+     - **Paginação**: Dots clicáveis para navegação
+     - **Navegação**: Botões next/prev para controle manual
+     - **Breakpoints**: Responsividade para diferentes tamanhos de tela
+     - **Lazy Loading**: Carregamento sob demanda de imagens
+     - **Zoom**: Funcionalidade de zoom nas imagens com ratio máximo configurável
    
    - **Template HTML do Carrossel**:
-     ```html
-     <div class="news-carousel-container">
-       <div class="swiper news-carousel">
-         <div class="swiper-wrapper">
-           @foreach($news->images as $image)
-           <div class="swiper-slide">
-             <div class="image-container">
-               <img data-src="{{ $image->url }}" 
-                    class="swiper-lazy" 
-                    alt="{{ $image->alt_text }}">
-               <div class="swiper-lazy-preloader"></div>
-               @if($image->caption)
-               <div class="image-caption">{{ $image->caption }}</div>
-               @endif
-               <div class="image-overlay">
-                 <button class="btn-fullscreen" data-image="{{ $image->large_url }}">
-                   <i class="fas fa-expand"></i>
-                 </button>
-                 <button class="btn-share" data-image="{{ $image->url }}">
-                   <i class="fas fa-share"></i>
-                 </button>
-               </div>
-             </div>
-           </div>
-           @endforeach
-         </div>
-         <div class="swiper-pagination"></div>
-         <div class="swiper-button-next"></div>
-         <div class="swiper-button-prev"></div>
-       </div>
-     </div>
-     ```
+     - **Estrutura Principal**: Container responsivo com classe news-carousel-container
+     - **Swiper Wrapper**: Elemento principal do carrossel com slides dinâmicos
+     - **Slides**: Cada imagem em container individual com lazy loading
+     - **Overlay**: Botões de ação (fullscreen, compartilhamento) sobre as imagens
+     - **Navegação**: Paginação com dots e botões next/prev
+     - **Blade Templates**: Integração com Laravel para renderização dinâmica
+     - **Responsividade**: Adaptação automática para diferentes dispositivos
      - **Sanitização**: Limpeza automática de código malicioso
      - **Compressão de Imagens**: Otimização automática de imagens inseridas
      - **SEO Helper**: Sugestões automáticas para otimização de SEO
@@ -3796,6 +3708,205 @@ echo "Prometheus: http://localhost:9090"
 
 **Aceitação de Convites**:
 - **GET /api/invitations/accept/{token}**: Página de aceitação
+
+## Sistema de Eventos
+
+### Visão Geral
+Sistema completo de gestão de eventos sindicais com diferentes tipos de acesso, controle de presença, votações específicas e sorteios entre participantes.
+
+### Tipos de Eventos
+
+#### Eventos Abertos
+- **Acesso**: Qualquer pessoa pode participar
+- **Registro**: Não requer associação ao sindicato
+- **Confirmação**: Sistema opcional de confirmação de participação
+- **Público-alvo**: Comunidade em geral
+
+#### Eventos para Associados
+- **Acesso**: Exclusivo para associados do sindicato
+- **Validação**: Verificação automática de status de associação
+- **Benefícios**: Acesso prioritário e condições especiais
+- **Integração**: Vinculado ao sistema de carteirinha digital
+
+#### Eventos para Parceiros
+- **Acesso**: Empresas e organizações parceiras
+- **Validação**: Verificação de convênios ativos
+- **Networking**: Foco em relacionamento comercial
+- **Benefícios**: Oportunidades de divulgação e parcerias
+
+#### Eventos para Colaboradores
+- **Acesso**: Funcionários e colaboradores do sindicato
+- **Validação**: Verificação de vínculo empregatício
+- **Capacitação**: Foco em treinamento e desenvolvimento
+- **Gestão Interna**: Reuniões e eventos administrativos
+
+### Estrutura do Evento
+
+#### Informações Básicas
+- **Título do Evento**: Nome descritivo e identificação única
+- **Descrição**: Detalhamento completo do evento
+- **Categoria**: Classificação por tipo (palestra, workshop, assembleia, confraternização)
+- **Organizador**: Responsável pela organização
+- **Status**: Rascunho, publicado, em andamento, finalizado, cancelado
+
+#### Data e Local
+- **Data de Início**: Data e horário de início do evento
+- **Data de Término**: Data e horário de encerramento
+- **Duração**: Cálculo automático da duração total
+- **Local**: Endereço completo do evento
+- **Capacidade Máxima**: Limite de participantes
+- **Modalidade**: Presencial, online ou híbrido
+
+#### Configurações de Participação
+- **Inscrições Abertas**: Período para inscrições
+- **Confirmação Obrigatória**: Exigir confirmação de participação
+- **Lista de Espera**: Sistema de fila para eventos lotados
+- **Cancelamento**: Política de cancelamento de inscrições
+
+### Sistema de Confirmação de Participação
+
+#### Processo de Inscrição
+- **Formulário de Inscrição**: Dados pessoais e informações específicas
+- **Validação de Elegibilidade**: Verificação automática de permissões
+- **Confirmação por Email**: Envio automático de confirmação
+- **Status de Inscrição**: Confirmado, pendente, cancelado, lista de espera
+
+#### Convite com QR Code
+- **Geração Automática**: QR code único para cada participante
+- **Dados Criptografados**: Informações do evento e participante
+- **Validação de Segurança**: Hash criptográfico para autenticidade
+- **Formato Digital**: Envio por email e disponível no app mobile
+- **Compartilhamento**: Opção de compartilhar convite
+
+#### Gestão de Participantes
+- **Lista de Inscritos**: Visualização completa dos participantes
+- **Filtros e Busca**: Organização por status, tipo, data de inscrição
+- **Comunicação**: Envio de mensagens para participantes
+- **Relatórios**: Estatísticas de inscrições e participação
+
+### Sistema de Presença
+
+#### QR Code de Presença
+- **Geração no Evento**: QR code específico criado ao publicar evento
+- **Download Disponível**: Arquivo para impressão ou exibição
+- **Validação Única**: Cada evento possui QR code exclusivo
+- **Segurança**: Criptografia para evitar falsificação
+
+#### Controle de Presença
+- **Scanner Mobile**: App permite escanear QR code do evento
+- **Validação Automática**: Verificação de inscrição e elegibilidade
+- **Registro de Horário**: Timestamp exato da confirmação de presença
+- **Status Visual**: Indicador de presença confirmada
+- **Relatório de Presença**: Lista de participantes presentes
+
+#### Funcionalidades Avançadas
+- **Check-in Múltiplo**: Controle de entrada e saída
+- **Presença Parcial**: Registro por sessões ou períodos
+- **Validação Offline**: Funcionamento sem conexão com internet
+- **Sincronização**: Upload automático quando conectado
+
+### Votações Específicas do Evento
+
+#### Integração com Sistema de Votações
+- **Votações Vinculadas**: Criação de votações específicas para o evento
+- **Elegibilidade Automática**: Apenas participantes confirmados podem votar
+- **Tipos de Votação**: Escolha de palestrante, avaliação, decisões do evento
+- **Tempo Real**: Resultados instantâneos durante o evento
+
+#### Configurações de Votação
+- **Período de Votação**: Definição de início e fim da votação
+- **Tipo de Voto**: Único, múltiplo, ranqueado
+- **Anonimato**: Votação anônima ou identificada
+- **Quórum**: Número mínimo de participantes para validar votação
+
+#### Resultados e Relatórios
+- **Visualização em Tempo Real**: Dashboard com resultados instantâneos
+- **Gráficos Interativos**: Representação visual dos resultados
+- **Exportação**: Relatórios em PDF e Excel
+- **Histórico**: Arquivo de todas as votações do evento
+
+### Sistema de Sorteios
+
+#### Configuração do Sorteio
+- **Critérios de Participação**: Presença confirmada, inscrição, etc.
+- **Número de Ganhadores**: Definição de quantos serão sorteados
+- **Prêmios**: Descrição dos prêmios disponíveis
+- **Data do Sorteio**: Agendamento automático ou manual
+
+#### Processo de Sorteio
+- **Algoritmo Aleatório**: Sistema criptograficamente seguro
+- **Transparência**: Processo auditável e verificável
+- **Exclusões**: Possibilidade de excluir participantes específicos
+- **Validação**: Verificação de elegibilidade dos ganhadores
+
+#### Resultados do Sorteio
+- **Anúncio Automático**: Notificação para ganhadores
+- **Lista Pública**: Divulgação dos resultados
+- **Comprovação**: Certificado digital do sorteio
+- **Entrega de Prêmios**: Controle de entrega e recebimento
+
+### Notificações e Comunicação
+
+#### Sistema de Notificações
+- **Push Notifications**: Alertas no app mobile
+- **Email Automático**: Confirmações e lembretes
+- **SMS**: Notificações importantes via mensagem
+- **In-App**: Notificações dentro do sistema web
+
+#### Tipos de Notificações
+- **Confirmação de Inscrição**: Sucesso na inscrição
+- **Lembrete de Evento**: 24h e 1h antes do evento
+- **Início de Votação**: Quando votação específica é aberta
+- **Resultado de Sorteio**: Notificação para ganhadores
+- **Cancelamento**: Informação sobre cancelamentos
+
+### Relatórios e Analytics
+
+#### Relatórios de Participação
+- **Taxa de Inscrição**: Percentual de inscritos vs. capacidade
+- **Taxa de Presença**: Percentual de presentes vs. inscritos
+- **Demografia**: Análise por tipo de participante
+- **Engajamento**: Participação em votações e atividades
+
+#### Métricas de Evento
+- **ROI do Evento**: Análise de custo-benefício
+- **Satisfação**: Avaliações e feedback dos participantes
+- **Alcance**: Métricas de divulgação e interesse
+- **Comparativo**: Análise histórica de eventos similares
+
+### Integração com Outros Módulos
+
+#### Sistema de Associados
+- **Validação Automática**: Verificação de status de associação
+- **Benefícios Exclusivos**: Acesso prioritário para associados
+- **Histórico de Participação**: Registro no perfil do associado
+- **Pontuação**: Sistema de pontos por participação
+
+#### Sistema de Convênios
+- **Eventos de Parceiros**: Divulgação de eventos de empresas conveniadas
+- **Descontos Especiais**: Condições diferenciadas para associados
+- **Networking**: Facilitação de contatos comerciais
+- **Validação de Parceria**: Verificação de convênios ativos
+
+#### Sistema de Comunicação
+- **Divulgação Automática**: Publicação em canais de comunicação
+- **Newsletter**: Inclusão em boletins informativos
+- **Redes Sociais**: Compartilhamento automático
+- **Site Institucional**: Publicação na agenda de eventos
+
+### Segurança e Auditoria
+
+#### Controle de Acesso
+- **Permissões por Perfil**: Diferentes níveis de acesso
+- **Auditoria de Ações**: Log de todas as operações
+- **Backup de Dados**: Proteção de informações dos eventos
+- **LGPD Compliance**: Conformidade com lei de proteção de dados
+
+#### Validação de QR Codes
+- **Criptografia Avançada**: Proteção contra falsificação
+- **Timestamp de Validade**: Códigos com prazo de expiração
+- **Verificação de Integridade**: Validação de dados não alterados
+- **Log de Escaneamentos**: Registro de todas as validações
 - **POST /api/invitations/accept/{token}**: Processar aceitação
 
 #### Sistema de Recompensas

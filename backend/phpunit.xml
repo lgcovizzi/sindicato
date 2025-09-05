@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="vendor/autoload.php"
+         colors="true"
+         processIsolation="false"
+         stopOnFailure="false"
+         cacheDirectory=".phpunit.cache"
+         backupGlobals="false"
+         backupStaticAttributes="false">
+    <testsuites>
+        <testsuite name="Unit">
+            <directory suffix="Test.php">./tests/Unit</directory>
+        </testsuite>
+        <testsuite name="Feature">
+            <directory suffix="Test.php">./tests/Feature</directory>
+        </testsuite>
+        <testsuite name="Integration">
+            <directory suffix="Test.php">./tests/Integration</directory>
+        </testsuite>
+        <testsuite name="Performance">
+            <directory suffix="Test.php">./tests/Performance</directory>
+        </testsuite>
+        <testsuite name="Security">
+            <directory suffix="Test.php">./tests/Security</directory>
+        </testsuite>
+    </testsuites>
+    
+    <coverage includeUncoveredFiles="true"
+              processUncoveredFiles="true"
+              ignoreDeprecatedCodeUnits="true"
+              disableCodeCoverageIgnore="true">
+        <include>
+            <directory suffix=".php">./app</directory>
+        </include>
+        <exclude>
+            <directory suffix=".php">./app/Console</directory>
+            <directory suffix=".php">./app/Exceptions</directory>
+            <file>./app/Http/Kernel.php</file>
+            <file>./app/Providers/RouteServiceProvider.php</file>
+        </exclude>
+        <report>
+            <html outputDirectory="./tests/coverage/html"/>
+            <clover outputFile="./tests/coverage/clover.xml"/>
+            <text outputFile="./tests/coverage/coverage.txt"/>
+            <xml outputDirectory="./tests/coverage/xml"/>
+        </report>
+    </coverage>
+    
+    <php>
+        <server name="APP_ENV" value="testing"/>
+        <server name="BCRYPT_ROUNDS" value="4"/>
+        <server name="CACHE_DRIVER" value="array"/>
+        <server name="DB_CONNECTION" value="sqlite"/>
+        <server name="DB_DATABASE" value=":memory:"/>
+        <server name="MAIL_MAILER" value="array"/>
+        <server name="QUEUE_CONNECTION" value="sync"/>
+        <server name="SESSION_DRIVER" value="array"/>
+        <server name="TELESCOPE_ENABLED" value="false"/>
+        <server name="REDIS_CLIENT" value="predis"/>
+        <server name="REDIS_CLUSTER" value="false"/>
+        <server name="JWT_SECRET" value="test_jwt_secret_key_for_testing_only"/>
+        <server name="BIOMETRIC_ENCRYPTION_KEY" value="test_biometric_key_32_characters"/>
+    </php>
+    
+    <logging>
+        <junit outputFile="./tests/results/junit.xml"/>
+        <teamcity outputFile="./tests/results/teamcity.txt"/>
+        <testdoxHtml outputFile="./tests/results/testdox.html"/>
+        <testdoxText outputFile="./tests/results/testdox.txt"/>
+    </logging>
+    
+    <extensions>
+        <!-- Add any PHPUnit extensions here -->
+    </extensions>
+</phpunit>
